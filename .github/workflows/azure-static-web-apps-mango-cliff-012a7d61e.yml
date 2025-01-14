@@ -3,33 +3,45 @@ name: Deploy Angular App to Azure
 on:
   push:
     branches:
-      - main  # Trigger on push to main branch (change if using a different branch)
+      - main  # Trigger on push to the main branch (adjust if needed)
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+    # Step 1: Checkout the code
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    # Step 2: Set up Node.js
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '18.19'  # Specify Node.js version
+        node-version: '14'  # Specify Node.js version (you can adjust if needed)
 
+    # Step 3: Install dependencies
     - name: Install dependencies
-      run: |
-        npm install
+      run: npm install
 
+    # Step 4: Build the Angular app for production
     - name: Build Angular app
-      run: |
-        npm run build --prod  # Build the Angular app for production
+      run: npm run build --prod
 
-    - name: Upload production build to Azure
+    # Step 5: Login to Azure using the service principal
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    # Step 6: Deploy to Azure App Service
+    - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'movie-search-ui'
-        slot-name: 'production'
-        publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-        package: ./dist/first-app
+        app-name: 'movie-search-ui'  # Replace with your Azure Web App name
+        slot-name: 'production'  # Optional: If using deployment slots, else leave as is
+        publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}  # Publish profile for deployment
+        package: ./dist/first-app  # Replace with your actual Angular dist folder name
