@@ -28,11 +28,7 @@ jobs:
     - name: Build Angular app
       run: npm run build --prod
 
-    # Step 5: Login to Azure using the service principal
-    - name: Azure Login
-      uses: azure/login@v1
-
-    # Step 6: Deploy to Azure App Service
+    # Step 5: Deploy to Azure App Service
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
